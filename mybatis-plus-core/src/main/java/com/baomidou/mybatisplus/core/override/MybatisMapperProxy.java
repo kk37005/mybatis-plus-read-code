@@ -80,12 +80,16 @@ public class MybatisMapperProxy<T> implements InvocationHandler, Serializable {
         lookupConstructor = lookup;
     }
 
+    // 这里是和 mybatis 的 MapperProxy 处理一样的
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
             if (Object.class.equals(method.getDeclaringClass())) {
+                // 并不是任何一个方法都需要执行调用代理对象进行执行，
+                // 如果这个方法是Object中通用的方法（toString、hashCode等）无需执行
                 return method.invoke(this, args);
             } else {
+                // 获得 MapperMethodInvoke 对象，重点在这：MapperMethodInvoke最终调用了method对象的invoke方法。
                 return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
             }
         } catch (Throwable t) {
@@ -96,6 +100,7 @@ public class MybatisMapperProxy<T> implements InvocationHandler, Serializable {
     private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
         try {
             return CollectionUtils.computeIfAbsent(methodCache, method, m -> {
+                // 如果是默认的标准方法
                 if (m.isDefault()) {
                     try {
                         if (privateLookupInMethod == null) {
@@ -108,6 +113,7 @@ public class MybatisMapperProxy<T> implements InvocationHandler, Serializable {
                         throw new RuntimeException(e);
                     }
                 } else {
+                    // 不是的话，构造一个PlainMethodInvoke对象
                     return new PlainMethodInvoker(new MybatisMapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
                 }
             });
@@ -145,6 +151,7 @@ public class MybatisMapperProxy<T> implements InvocationHandler, Serializable {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable {
+            //实际上还是走到了 MybatisMapperMethod 的execute方法
             return mapperMethod.execute(sqlSession, args);
         }
     }

@@ -53,6 +53,7 @@ public class MybatisMapperMethod {
 
     public Object execute(SqlSession sqlSession, Object[] args) {
         Object result;
+        // 判断mapper中的方法类型，最终调用的还是SqlSession中的方法
         switch (command.getType()) {
             case INSERT: {
                 Object param = method.convertArgsToSqlCommandParam(args);
@@ -82,6 +83,7 @@ public class MybatisMapperMethod {
                 } else {
                     // TODO 这里下面改了
                     if (IPage.class.isAssignableFrom(method.getReturnType())) {
+                        // 如果是分页
                         result = executeForIPage(sqlSession, args);
                         // TODO 这里上面改了
                     } else {

@@ -14,7 +14,7 @@ buildscript {
     }
 }
 
-rootProject.name = 'mybatis-plus-root'
+rootProject.name = 'mybatis-plus-read-code'
 include 'mybatis-plus'
 include 'mybatis-plus-core'
 include 'mybatis-plus-annotation'
